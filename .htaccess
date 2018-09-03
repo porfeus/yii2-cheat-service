@@ -1,0 +1,56 @@
+Options +FollowSymLinks
+IndexIgnore */*
+RewriteEngine on
+
+php_value max_input_vars 10000
+php_value suhosin.post.max_vars 10000
+php_value suhosin.request.max_vars 10000
+
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_URI} ^/.*
+    RewriteRule ^(.*)$ web/$1 [L]
+    RewriteCond %{REQUEST_URI} !^/web/
+    RewriteCond %{REQUEST_FILENAME} !-f [OR]
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^.*$ web/index.php
+</IfModule>
+
+RewriteCond %{REQUEST_URI} !^/(web)
+RewriteRule ^assets/(.*)$ /web/assets/$1 [L]
+RewriteRule ^css/(.*)$ web/css/$1 [L]
+RewriteRule ^tz/(.*)$ web/tz/$1 [L]
+RewriteRule ^js/(.*)$ web/js/$1 [L]
+RewriteRule ^highslide/(.*)$ web/highslide/$1 [L]
+RewriteRule ^cap/(.*)$ web/cap/$1 [L]
+RewriteRule ^images/(.*)$ web/images/$1 [L]
+RewriteRule ^img/(.*)$ web/img/$1 [L]
+RewriteRule ^ID-S/(.*)$ web/ID-S/$1 [L]
+RewriteRule (.*) /web/$1
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /web/index.php
+
+
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType application/javascript "access plus 7 days"
+ExpiresByType image/gif "access plus 7 days"
+ExpiresByType image/jpeg "access plus 7 days"
+ExpiresByType image/png "access plus 7 days"
+ExpiresByType image/jpg "access plus 7 days"
+ExpiresByType image/x-icon "access 7 days"
+</IfModule>
+
+
+SetEnvIf Request_URI "^/admin" ADMIN_PASSWD=true
+SetEnvIf Request_URI "admin" ADMIN_PASSWD=true
+
+AuthUserFile /var/www/alerzo/data/www/test.go-ip.ru/modules/admin/.htpasswd
+AuthName "Password Protected"
+AuthType Basic
+Order Allow,Deny
+Satisfy any
+Allow from all
+Require valid-user
+Deny from env=ADMIN_PASSWD
